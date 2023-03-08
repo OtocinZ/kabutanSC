@@ -43,9 +43,19 @@ target_xpath = '//*[@id="shijyounews"]/article/div'
 scraped_data = dom.xpath(target_xpath)
 # list
 codelists = []
+descriptions = [] 
 for news in scraped_data:
     get_a = news.findall("a")
-    print(tostring(news, encoding="utf-8").decode())
+    # 不要な改行を消す
+    articles = tostring(news, encoding="utf-8").decode().replace('\n','')
+    # 8行目から3step毎のdescriptionを取得する
+    for article in articles.split("<br/>")[8::3]:
+      # 空要素は除外する
+      if article != '':
+        descriptions.append(article)
+    # テスト出力
+    for i in descriptions:
+      print(i)
     # lxml.html.HtmlElement
     for alink in get_a:
         # print(alink.text)
