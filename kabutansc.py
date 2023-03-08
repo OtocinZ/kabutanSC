@@ -13,6 +13,7 @@ def chonint(num):
 
 
 # 株探注目ニュース一覧ページ
+fqdn = "https://kabutan.jp/"
 url = "https://kabutan.jp/news/marketnews/?category=9"
 html = requests.get(url)
 soup = BeautifulSoup(html.content, "html.parser")
@@ -43,19 +44,28 @@ target_xpath = '//*[@id="shijyounews"]/article/div'
 scraped_data = dom.xpath(target_xpath)
 # list
 codelists = []
+brands = [] 
+urls = []
 descriptions = [] 
 for news in scraped_data:
     get_a = news.findall("a")
     # 不要な改行を消す
     articles = tostring(news, encoding="utf-8").decode().replace('\n','')
-    # 8行目から3step毎のdescriptionを取得する
-    for article in articles.split("<br/>")[8::3]:
-      # 空要素は除外する
-      if article != '':
-        descriptions.append(article)
+    articles = articles.split("<br/>")[7:]
+
+    for i, article in enumerate(articles):
+      if i % 3 == 0:
+        if "悪材料" in articles[i]:
+          break
+        # 空要素は除外する
+        if article != '':
+          brands.append(articles[i].split("&lt")[0].rstrip())
+          urls.append(fqdn + articles[i].split("\"")[1])
+          descriptions.append(articles[i + 1])
+
     # テスト出力
-    for i in descriptions:
-      print(i)
+    for i,brand in enumerate(brands):
+      print(brands[i], urls[i], descriptions[i])
     # lxml.html.HtmlElement
     for alink in get_a:
         # print(alink.text)
